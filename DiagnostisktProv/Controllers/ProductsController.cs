@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using DiagnostisktProv.Data;
 using DiagnostisktProv.Models;
 using Microsoft.Extensions.Logging;
+using DiagnostisktProv.Services;
 
 namespace DiagnostisktProv.Controllers
 {
@@ -15,18 +16,20 @@ namespace DiagnostisktProv.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger _logger;
+        private readonly ProductCategoryService _service;
 
-        public ProductsController(ApplicationDbContext context, ILogger<ProductsController> logger)
+        public ProductsController(ApplicationDbContext context, ILogger<ProductsController> logger, ProductCategoryService service)
         {
             _context = context;
             _logger = logger;
+            _service = service;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
             _logger.LogWarning("With great powers comes great responsibilities");
-            return View(await _context.Products.ToListAsync());
+            return View(await _context.Products.Include(x=>x.ProductCategory).ToListAsync());
         }
 
         // GET: Products/Details/5
@@ -37,7 +40,7 @@ namespace DiagnostisktProv.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
+            var product = await _context.Products.Include(x => x.ProductCategory)
                 .SingleOrDefaultAsync(m => m.ProductId == id);
             if (product == null)
             {
@@ -50,11 +53,8 @@ namespace DiagnostisktProv.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
-            var categories = new List<ProductCategory> { new ProductCategory { ProductCategoryId=1, ProductCategoryName="TV"},
-                new  ProductCategory{ProductCategoryId =2, ProductCategoryName="DVD"},
-                new ProductCategory{ProductCategoryId=3, ProductCategoryName="VHS"} };
 
-            ViewData["ProductCategoryName"] = new SelectList(categories, "ProductCategoryId", "ProductCategoryName");
+            ViewData["ProductCategoryName"] = _service.GetSelectList();
             return View();
         }
 
@@ -63,7 +63,7 @@ namespace DiagnostisktProv.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,Price")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductName,Price, ProductCategoryId")] Product product)
         {
             if (ModelState.IsValid)
             {
@@ -82,16 +82,14 @@ namespace DiagnostisktProv.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.SingleOrDefaultAsync(m => m.ProductId == id);
+            var product = await _context.Products.Include(x => x.ProductCategory).SingleOrDefaultAsync(m => m.ProductId == id);
+           
             if (product == null)
             {
                 return NotFound();
             }
-            var categories = new List<ProductCategory> { new ProductCategory { ProductCategoryId=1, ProductCategoryName="TV"},
-                new  ProductCategory{ProductCategoryId =2, ProductCategoryName="DVD"},
-                new ProductCategory{ProductCategoryId=3, ProductCategoryName="VHS"} };
 
-            ViewData["ProductCategoryName"] = new SelectList(categories, "ProductCategoryId", "ProductCategoryName");
+            ViewData["ProductCategoryName"] = _service.GetSelectList();
             return View(product);
         }
 
@@ -100,7 +98,7 @@ namespace DiagnostisktProv.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,Price")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,Price, ProductCategoryId")] Product product)
         {
             if (id != product.ProductId)
             {
