@@ -32,7 +32,7 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Product" asp-action="Index">Products</a></li>
+                    <li><a asp-area="" asp-controller="Products" asp-action="Index">Products</a></li>
                     <li><p style="color:white; margin-top:15px;">Enviroment = @HostingEnviroment.EnvironmentName</p></li>
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")
@@ -42,9 +42,7 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
-        <footer>
-            <p>&copy; 2017 - DiagnostisktProv</p>
-        </footer>
+      @Html.Partial("_FooterPartialView")
     </div>
 
     <environment include="Development">
