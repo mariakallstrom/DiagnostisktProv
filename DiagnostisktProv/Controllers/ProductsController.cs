@@ -46,6 +46,11 @@ namespace DiagnostisktProv.Controllers
         // GET: Products/Create
         public IActionResult Create()
         {
+            var categories = new List<ProductCategory> { new ProductCategory { ProductCategoryId=1, ProductCategoryName="TV"},
+                new  ProductCategory{ProductCategoryId =2, ProductCategoryName="DVD"},
+                new ProductCategory{ProductCategoryId=3, ProductCategoryName="VHS"} };
+
+            ViewData["ProductCategoryName"] = new SelectList(categories, "ProductCategoryId", "ProductCategoryName");
             return View();
         }
 
@@ -78,6 +83,11 @@ namespace DiagnostisktProv.Controllers
             {
                 return NotFound();
             }
+            var categories = new List<ProductCategory> { new ProductCategory { ProductCategoryId=1, ProductCategoryName="TV"},
+                new  ProductCategory{ProductCategoryId =2, ProductCategoryName="DVD"},
+                new ProductCategory{ProductCategoryId=3, ProductCategoryName="VHS"} };
+
+            ViewData["ProductCategoryName"] = new SelectList(categories, "ProductCategoryId", "ProductCategoryName");
             return View(product);
         }
 
